@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+<< << << < HEAD
 //                          .::::.
 //                        .::::::::.
 //                       :::::::::::
@@ -411,8 +411,8 @@ function getLongest(str) {
         start = leg - max;
     }
     return str.substring(start, start + max);
-}
-=======
+} ===
+=== =
 //                          .::::.
 //                        .::::::::.
 //                       :::::::::::
@@ -870,5 +870,5 @@ function chaosArray(nums) {
         return Math.random() - 0.5;
     });
     return nums;
-}
->>>>>>> master
+} >>>
+>>> > master
