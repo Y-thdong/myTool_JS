@@ -22,7 +22,7 @@
 // *********************************************************
 // *********************************************************
 // 原理：在任何值上调用Object原生的toString()方法都会返回一个[Object NativeConstructorName]格式的字符串。每个类在内部都会有一个[[Class]]属性，这个属性中就指定了上述字符串中的构造函数名。
-function type(target) {
+function type (target) {
     var ret = typeof (target);
     var template = {
         "[object Array]": "array",
@@ -45,15 +45,15 @@ function type(target) {
 // ************************************
 // 除此之外还可以利用这一点创建如下函数
 // 需注意Object.prototype.toString不能检测非原生构造函数的构造函数名，因此自定义的任何构造函数构造的对象调用如上方法都会返回[object Object]
-function isArray(value) {
+function isArray (value) {
     return Object.prototype.toString.call(value) == '[object Object]';
 }
 
-function isFunction(value) {
+function isFunction (value) {
     return Object.prototype.toString.call(value) == '[object Function]';
 }
 
-function isRegExp(value) {
+function isRegExp (value) {
     return Object.prototype.toString.call(value) == '[object RegExp]';
 }
 // 某些库中包含类似下面的JS代码
@@ -149,7 +149,7 @@ Array.prototype.unique6 = function () {
 
 // 下面两种方法思想相同
 
-function temporarySwap(array) {
+function temporarySwap (array) {
     var left = null;
     var right = null;
     var length = array.length;
@@ -162,7 +162,7 @@ function temporarySwap(array) {
 }
 
 // 此方法性能极好
-function temporarySwapHalf(array) {
+function temporarySwapHalf (array) {
     var left = null;
     var right = null;
     var length = array.length;
@@ -176,7 +176,7 @@ function temporarySwapHalf(array) {
 }
 
 // 使用XOR来交换两个数据的值，第一次见
-function xorSwap(array) {
+function xorSwap (array) {
     var i = null;
     var r = null;
     var length = array.length;
@@ -202,7 +202,7 @@ function xorSwap(array) {
     return array;
 }
 
-function xorSwapHalf(array) {
+function xorSwapHalf (array) {
     var i = null;
     var r = null;
     var length = array.length;
@@ -250,8 +250,8 @@ Object.prototype.push = function (key, value) {
 // **************************************************************
 // https://leetcode-cn.com/problems/sort-an-array/solution/javascriptshi-xian-shu-zu-kuai-su-pai-xu-by-tian-h/
 // 数字数组的快速排序实现,返回排序后的数组
-function sortArray(nums) {
-    function quicksort(left, right) {
+function sortArray (nums) {
+    function quicksort (left, right) {
         var key = nums[left],
             i = left,
             j = right;
@@ -274,7 +274,7 @@ function sortArray(nums) {
 }
 // 对于数组排序大都时候不需要使用冒泡排序，使用sort再传入一个比较函数即可，如下是两个比较函数
 // compare1适用于大多数数据类型，而compare2只适用于数值类型或者其valueOf方法会返回数值类型的对象类型  红宝书P93
-function compare1(value1, value2) {
+function compare1 (value1, value2) {
     if (value1 < value2) {
         return -1;
     } else if (value1 > value2) {
@@ -284,7 +284,7 @@ function compare1(value1, value2) {
     }
 }
 
-function compare2(value1, value2) {
+function compare2 (value1, value2) {
     return value2 - value1;
 }
 
@@ -298,7 +298,7 @@ function compare2(value1, value2) {
 // **************************************************************
 // 寄生组合式继承（圣杯模式）
 var inherit = (function () {
-    var F = function () {};
+    var F = function () { };
     return function (Target, Origin) {
         F.prototype = Origin.prototype;
         Target.prototype = new F();
@@ -319,7 +319,7 @@ Array.prototype.last = function () {
 // 针对停止冒泡的函数封装，因为IE使用的是cancelBubble
 // 在停止冒泡处调用stopBubble函数传入时间对象即可
 // 还可以把下列代码写成三目
-function stopBubble(event) {
+function stopBubble (event) {
     if (event.stopPropagation) {
         event.stopPropagation();
     } else {
@@ -328,7 +328,7 @@ function stopBubble(event) {
 }
 
 // 组织一些默认事件，比如 表单提交，a标签跳转，右键菜单等
-function cancelHandler(event) {
+function cancelHandler (event) {
     if (event.preventDefault) {
         event.preventDefault(); //IE9以下不兼容
     } else {
@@ -339,7 +339,7 @@ function cancelHandler(event) {
 
 // 对JS事件兼容性的解决，IE9以下只兼容attchEvent
 // attachEvent这种东西基本没人用了，只有极少数还处在IE9以下的
-function addEvent(elem, type, handle) {
+function addEvent (elem, type, handle) {
     if (elem.addEventListener) {
         elem.addEventListener(type, handle, false);
     } else if (elem.attachEvent) {
@@ -352,7 +352,7 @@ function addEvent(elem, type, handle) {
 }
 
 // 解除监听器，依次传入元素，事件函数，事件类型，handle不存在就传undefined
-function removeMonitor(elem, handle, type) {
+function removeMonitor (elem, handle, type) {
     if (elem.addEventListener) {
         elem.removeEventListener(type, handle);
     } else if (elem.attachEvent) {
@@ -384,7 +384,7 @@ String.prototype.byteLength = function () {
 // ************忽略大小写查找字符串中最长的相同连续子串*************
 // **************************************************************
 // **************************************************************
-function getLongest(str) {
+function getLongest (str) {
     let leg = str.length;
     if (leg <= 1) return str;
     let start = 0;
@@ -450,7 +450,7 @@ var buildTree = function (preorder, inorder) {
 
 // 数组乱序
 // JavaScript数组乱序
-function chaosArray(nums) {
+function chaosArray (nums) {
     nums.sort(function (a, b) {
         return Math.random() - 0.5;
     });
