@@ -464,7 +464,7 @@ function chaosArray (nums) {
 
 // addLoadEvent
 function addLoadEvent (func) {
-    var oldonload = window.onload;
+    let oldonload = window.onload;
     if (typeof window.onload != 'function') {
         window.onload = func;
     } else {
@@ -473,4 +473,39 @@ function addLoadEvent (func) {
             func();
         }
     }
+}
+
+// 给一类标签增加class属性
+
+// 找子元素节点
+function getNextElement (node) {
+    if (node.nodeType == 1) {
+        return node;
+    }
+    if (node.nextSibling) {
+        return getNextElement(node.nextSibling);
+    }
+    return null;
+}
+
+function addClass (element, value) {
+    if (!element.className) {
+        element.className = value;
+    } else {
+        newClassName = element.className;
+        newClassName += " ";
+        newClassName += value;
+        element.className = newClassName;
+    }
+}
+
+function styleElementSiblings (tag, theclass) {
+    if (!document.getElementsByTagName) return false;
+    let elems = document.getElementsByTagName(tag);
+    let elem;
+    for (let i = 0; i < elems.length; i++) {
+        elem = getNextElement(elems[i]);
+        addClass(elem, theclass)
+    }
+    // console.log("what happen");
 }
