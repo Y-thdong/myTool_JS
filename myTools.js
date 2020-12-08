@@ -544,3 +544,30 @@ function getQueryStringArgs () {
 
     return args;
 }
+
+
+// **************************************************************
+// **************************************************************
+// *************** JavaScript deepClone *************************
+// **************************************************************
+// **************************************************************
+// https://blog.csdn.net/qq_42842786/article/details/108813321
+
+function deepClone (origin, target1) {
+    let target2 = target1 || {};
+    for (let prop in origin) {
+        if (origin.hasOwnProperty(prop)) {
+            if (origin[prop] !== 'null' && typeof (origin[prop]) == 'object') {
+                if (Object.prototype.toString.call(origin[prop]) == '[object Array]') {
+                    target2[prop] = [];
+                } else {
+                    target2[prop] = {};
+                }
+                deepClone(origin[prop], target2[prop]);
+            } else {
+                target2[prop] = origin[prop];
+            }
+        }
+    }
+    return target2;
+}
