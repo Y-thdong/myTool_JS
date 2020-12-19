@@ -588,3 +588,22 @@ function matchesSelector (element, selector) {
         console.info("Not supported.");
     }
 }
+
+// P300
+// 检测otherNode是不是refNode的后代
+// 书中使用的client.engine已经不能使用，所以改写成下面这样的也通用
+function contains (refNode, otherNode) {
+    if (typeof refNode.compareDocumentPosition == "function") {
+        return !!(refNode.compareDocumentPosition(otherNode) & 16);
+    } else {
+        var node = otherNode.parentNode;
+        do {
+            if (node === refNode) {
+                return true;
+            } else {
+                node = node.parentNode;
+            }
+        } while (node !== null);
+        return false;
+    }
+}
