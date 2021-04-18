@@ -16,21 +16,30 @@
 //        ...:::           ::::::::::::'              ``::.
 //       ````':.          ':::::::::'                  ::::..
 //                          '.:::::'                    ':'````..
-// *********************************************************
-// *********************************************************
-// *****************typeof的完善****************************
-// *********************************************************
-// *********************************************************
-// 原理：在任何值上调用Object原生的toString()方法都会返回一个[Object NativeConstructorName]格式的字符串。每个类在内部都会有一个[[Class]]属性，这个属性中就指定了上述字符串中的构造函数名。
+
+/**
+ * typeof的完善
+ * 
+ * 原理：在任何值上调用 Object 原生的 toString() 方法都会返回一个
+ * [Object NativeConstructorName]格式的字符串。每个类在内部都会有
+ * 一个[[Class]]属性，这个属性中就指定了上述字符串中的构造函数名。
+ */
 function type (target) {
     var ret = typeof (target);
     var template = {
-        "[object Array]": "array",
+        // 注意toString返回的是object Xxx，而typeof是小写的xxx
         "[object Object]": "object",
         "[object Number]": "number - object",
-        "[object Boolean]": "boolean - object",
         "[object String]": "string - object",
-        "[object RegExp]": "regexp - object"
+        "[object Boolean]": "boolean - object",
+        "[object Function]": "function - object",
+        "[object Null]": "null",
+        "[object Undefined]": "undefined",
+        "[object RegExp]": "regexp - object",
+        "[object Date]": "date object",
+        "[object Array]": "array",
+        "[object HTMLDocument]": "HTMLDocument object",
+        "[object Window]": "Window object"
     }
     if (target === null) {
         return "null";
@@ -42,9 +51,24 @@ function type (target) {
         return ret;
     }
 }
-// ************************************
-// 除此之外还可以利用这一点创建如下函数
-// 需注意Object.prototype.toString不能检测非原生构造函数的构造函数名，因此自定义的任何构造函数构造的对象调用如上方法都会返回[object Object]
+
+/**
+ * 获取 target 的类型
+ */
+function getType (target) {
+    let type = typeof target;
+    if (type !== "object") {
+        return type;
+    }
+    return Object.prototype.toString.call(target).replace(/^\[object(\S+)\]$/, '$1');
+}
+
+/**
+ * 除此之外还可以利用这一点创建如下函数
+ * 
+ * 需注意Object.prototype.toString不能检测非原生构造函数的构造函数名，
+ * 因此自定义的任何构造函数构造的对象调用如上方法都会返回[object Object]
+ */
 function isArray (value) {
     return Object.prototype.toString.call(value) == '[object Object]';
 }
@@ -56,17 +80,21 @@ function isFunction (value) {
 function isRegExp (value) {
     return Object.prototype.toString.call(value) == '[object RegExp]';
 }
+
 // 某些库中包含类似下面的JS代码
 // var isNativeJSON = window.JSON && Object.prototype.toString.call(JSON) == "[object JSON]"
 
 
 
-// **************************************************************
-// **************************************************************
-// *********************数组去重*********************************
-// **************************************************************
-// **************************************************************
-// 数组去重，应当考虑数组元素的数据类型，但是也要注意各个方法的原理，在进行运算时可能会存在隐式类型转换，比如某个方法在对 [0, 0, "0"] 进行去重时会只留下一个0，比如方法（1），因为方括号传入的都是字符串参数，所以系统会认为"0"和前面的0是一样的会被去掉。其他方法也是如此，需要注意总结。
+/**
+ * 数组去重
+ * 
+ * 应当考虑数组元素的数据类型，但是也要注意各个方法的原理，
+ * 在进行运算时可能会存在隐式类型转换，比如某个方法在对 
+ * [0, 0, "0"] 进行去重时会只留下一个0，比如方法（1），
+ * 因为方括号传入的都是字符串参数，所以系统会认为"0"和前面的0是一样的会被去掉。
+ * 其他方法也是如此，需要注意总结。
+ */
 
 // ***************（1）普通用法*****************
 // 问题：[0, 0, "0", NaN, NaN, "NaN"]去重得到 [0, NaN]
@@ -139,15 +167,13 @@ Array.prototype.unique6 = function () {
 }
 
 
-// **************************************************************
-// **************************************************************
-// *********************数组元素倒序*********************************
-// **************************************************************
-// **************************************************************
-// 一般来讲我们可以使用内置的reverse函数，但是其性能极差，所以对性能有要求建议手写
-// 参考：https://stackoverflow.com/questions/5276953/what-is-the-most-efficient-way-to-reverse-an-array-in-javascript
-
-// 下面两种方法思想相同
+/**
+ * 数组元素倒序
+ * 
+ * 一般来讲我们可以使用内置的reverse函数，但是其性能不稳定，对性能可以手写
+ * 参考：https://stackoverflow.com/questions/5276953/what-is-the-most-efficient-way-to-reverse-an-array-in-javascript
+ * 下面两种方法思想相同
+ */
 
 function temporarySwap (array) {
     var left = null;
@@ -161,7 +187,7 @@ function temporarySwap (array) {
     return array;
 }
 
-// 此方法性能极好
+// 此方法有时极好
 function temporarySwapHalf (array) {
     var left = null;
     var right = null;
@@ -230,11 +256,9 @@ function xorSwapHalf (array) {
 }
 
 
-// **************************************************************
-// **************************************************************
-// *********************对象push键值对****************************
-// **************************************************************
-// **************************************************************
+/**
+ * 对象push键值对
+ */
 Object.prototype.push = function (key, value) {
     this[key] = value;
 }
@@ -243,13 +267,12 @@ Object.prototype.push = function (key, value) {
 
 
 
-// **************************************************************
-// **************************************************************
-// ***************JavaScript数组快速排序*************************
-// **************************************************************
-// **************************************************************
-// https://leetcode-cn.com/problems/sort-an-array/solution/javascriptshi-xian-shu-zu-kuai-su-pai-xu-by-tian-h/
-// 数字数组的快速排序实现,返回排序后的数组
+/**
+ * JavaScript数组快速排序
+ * 
+ * https://leetcode-cn.com/problems/sort-an-array/solution/javascriptshi-xian-shu-zu-kuai-su-pai-xu-by-tian-h/
+ * 数字数组的快速排序实现，返回排序后的数组
+ */
 function sortArray (nums) {
     function quicksort (left, right) {
         var key = nums[left],
@@ -291,11 +314,9 @@ function compare2 (value1, value2) {
 
 
 
-// **************************************************************
-// **************************************************************
-// ***********************JavaScript继承*************************
-// **************************************************************
-// **************************************************************
+/**
+ * JavaScript继承
+ */
 // 寄生组合式继承（圣杯模式）
 var inherit = (function () {
     var F = function () { };
@@ -308,7 +329,9 @@ var inherit = (function () {
 }());
 
 
-// 返回数组最后一个元素
+/**
+ * 返回数组最后一个元素
+ */
 Array.prototype.last = function () {
     if (this.length > 0)
         return this[this.length - 1];
@@ -316,9 +339,11 @@ Array.prototype.last = function () {
         return null
 }
 
-// 针对停止冒泡的函数封装，因为IE使用的是cancelBubble
-// 在停止冒泡处调用stopBubble函数传入时间对象即可
-// 还可以把下列代码写成三目
+/**
+ * 针对停止冒泡的函数封装，因为IE使用的是cancelBubble
+ * 在停止冒泡处调用stopBubble函数传入时间对象即可
+ * 还可以把下列代码写成三目 
+ */
 function stopBubble (event) {
     if (event.stopPropagation) {
         event.stopPropagation();
@@ -327,7 +352,9 @@ function stopBubble (event) {
     }
 }
 
-// 组织一些默认事件，比如 表单提交，a标签跳转，右键菜单等
+/**
+ * 阻止一些默认事件，比如 表单提交，a标签跳转，右键菜单等
+ */
 function cancelHandler (event) {
     if (event.preventDefault) {
         event.preventDefault(); //IE9以下不兼容
@@ -337,8 +364,11 @@ function cancelHandler (event) {
 }
 
 
-// 对JS事件兼容性的解决，IE9以下只兼容attchEvent
-// attachEvent这种东西基本没人用了，只有极少数还处在IE9以下的
+/**
+ * 对JS事件兼容性的解决，IE9以下只兼容attchEvent
+ * 
+ * attachEvent这种东西基本没人用了，只有极少数还处在IE9以下的
+ */
 function addEvent (elem, type, handle) {
     if (elem.addEventListener) {
         elem.addEventListener(type, handle, false);
@@ -351,7 +381,9 @@ function addEvent (elem, type, handle) {
     }
 }
 
-// 解除监听器，依次传入元素，事件函数，事件类型，handle不存在就传undefined
+/**
+ * 解除监听器，依次传入元素，事件函数，事件类型，handle不存在就传undefined
+ */
 function removeMonitor (elem, handle, type) {
     if (elem.addEventListener) {
         elem.removeEventListener(type, handle);
@@ -363,8 +395,11 @@ function removeMonitor (elem, handle, type) {
 }
 
 
-// 求字符串字节长度
-// 比如："hui会".byteLength() //5
+/**
+ * 求字符串字节长度
+ * 
+ * 比如："hui会".byteLength() //5
+ */
 String.prototype.byteLength = function () {
     var str = this,
         leg = str.length;
@@ -378,12 +413,9 @@ String.prototype.byteLength = function () {
 }
 
 
-
-// **************************************************************
-// **************************************************************
-// ************忽略大小写查找字符串中最长的相同连续子串*************
-// **************************************************************
-// **************************************************************
+/**
+ * 忽略大小写查找字符串中最长的相同连续子串
+ */
 function getLongest (str) {
     let leg = str.length;
     if (leg <= 1) return str;
@@ -412,23 +444,19 @@ function getLongest (str) {
     return str.substring(start, start + max);
 }
 
-// **************************************************************
-// **************************************************************
-// ***************************重建二叉树**************************
-// **************************************************************
-// **************************************************************
+
 /**
- * Definition for a binary tree node.
+ * 重建二叉树
+ * @param {number[]} preorder 前序遍历的数组
+ * @param {number[]} inorder  中序遍历的数组
+ * @return {TreeNode}
+ * 
+ * https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/
+ * 
  * function TreeNode(val) {
  *     this.val = val;
  *     this.left = this.right = null;
  * }
- */
-/**
- * https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/
- * @param {number[]} preorder 前序遍历的数组
- * @param {number[]} inorder  中序遍历的数组
- * @return {TreeNode}
  */
 var buildTree = function (preorder, inorder) {
     if (preorder.length == 0 || inorder.length == 0) {
@@ -448,8 +476,9 @@ var buildTree = function (preorder, inorder) {
     };
 };
 
-// 数组乱序
-// JavaScript数组乱序
+/**
+ * JavaScript数组乱序
+ */
 function chaosArray (nums) {
     nums.sort(function (a, b) {
         return Math.random() - 0.5;
@@ -459,10 +488,9 @@ function chaosArray (nums) {
 
 // modify
 
-
-
-
-// addLoadEvent
+/**
+ * addLoadEvent
+ */
 function addLoadEvent (func) {
     let oldonload = window.onload;
     if (typeof window.onload != 'function') {
@@ -475,9 +503,11 @@ function addLoadEvent (func) {
     }
 }
 
-// 给一类标签增加class属性
 
-// 找子元素节点
+
+/**
+ * 找子元素节点
+ */
 function getNextElement (node) {
     if (node.nodeType == 1) {
         return node;
@@ -488,6 +518,9 @@ function getNextElement (node) {
     return null;
 }
 
+/**
+ * 给一类标签增加class属性
+ */
 function addClass (element, value) {
     if (!element.className) {
         element.className = value;
@@ -511,8 +544,11 @@ function styleElementSiblings (tag, theclass) {
 }
 
 
-// 红宝书8.2.1  P208
-// 查询字符串参数
+/**
+ * 查询字符串参数
+ * 
+ * 红宝书8.2.1  P208
+ */
 function getQueryStringArgs () {
 
     //get query string without the initial ?
@@ -546,13 +582,11 @@ function getQueryStringArgs () {
 }
 
 
-// **************************************************************
-// **************************************************************
-// *************** JavaScript deepClone *************************
-// **************************************************************
-// **************************************************************
-// https://blog.csdn.net/qq_42842786/article/details/108813321
-
+/**
+ * JavaScript deepClone
+ * 
+ * https://blog.csdn.net/qq_42842786/article/details/108813321
+ */
 function deepClone (origin, target1) {
     let target2 = target1 || {};
     for (let prop in origin) {
@@ -590,7 +624,7 @@ function matchesSelector (element, selector) {
 }
 
 // P300
-// 检测otherNode是不是refNode的后代
+// 检测 otherNode 是不是 refNode 的后代
 // 书中使用的client.engine已经不能使用，所以改写成下面这样的也通用
 function contains (refNode, otherNode) {
     if (typeof refNode.compareDocumentPosition == "function") {
@@ -607,3 +641,127 @@ function contains (refNode, otherNode) {
         return false;
     }
 }
+
+/**
+ * 数组扁平化
+ */
+Array.prototype.myFlat = function () {
+    return [].concat(...this.map(item => (Array.isArray(item) ? item.myFlat() : [item])));
+}
+
+
+/**
+ * 跨浏览器的事件对象
+ * 《JavaScript高级程序设计》P362 事件类型
+ */
+
+const EventUtil = {
+
+    addHandler: function (element, type, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(type, handler, false);
+        } else if (element.attachEvent) {
+            element.attachEvent("on" + type, handler);
+        } else {
+            element["on" + type] = handler;
+        }
+    },
+
+    removeHandler: function (element, type, handler) {
+        if (element.removeEventListener) {
+            element.removeEventListener(type, handler, false);
+        } else if (element.detachEvent) {
+            element.detachEvent("on" + type, handler);
+        } else {
+            element["on" + type] = null;
+        }
+    },
+
+    getButton: function (event) {
+        if (document.implementation.hasFeature("MouseEvents", "2.0")) {
+            return event.button;
+        } else {
+            switch (event.button) {
+                case 0:
+                case 1:
+                case 3:
+                case 5:
+                case 7:
+                    return 0;
+                case 2:
+                case 6:
+                    return 2;
+                case 4: return 1;
+            }
+        }
+    },
+
+    getCharCode: function (event) {
+        if (typeof event.charCode == "number") {
+            return event.charCode;
+        } else {
+            return event.keyCode;
+        }
+    },
+
+    getClipboardText: function (event) {
+        var clipboardData = (event.clipboardData || window.clipboardData);
+        return clipboardData.getData("text");
+    },
+
+    getEvent: function (event) {
+        // 非IE ：IE
+        return event ? event : window.event;
+    },
+
+    getRelatedTarget: function (event) {
+        if (event.relatedTarget) {
+            return event.relatedTarget;
+        } else if (event.toElement) {
+            return event.toElement;
+        } else if (event.fromElement) {
+            return event.fromElement;
+        } else {
+            return null;
+        }
+
+    },
+
+    // 返回事件目标
+    getTarget: function (event) {
+        return event.target || event.srcElement;
+    },
+
+    getWheelDelta: function (event) {
+        if (event.wheelDelta) {
+            return (client.engine.opera && client.engine.opera < 9.5 ? -event.wheelDelta : event.wheelDelta);
+        } else {
+            return -event.detail * 40;
+        }
+    },
+
+    preventDefault: function (event) {
+        if (event.preventDefault) {
+            event.preventDefault();
+        } else {
+            event.returnValue = false;
+        }
+    },
+
+    setClipboardText: function (event, value) {
+        if (event.clipboardData) {
+            event.clipboardData.setData("text/plain", value);
+        } else if (window.clipboardData) {
+            window.clipboardData.setData("text", value);
+        }
+    },
+
+    stopPropagation: function (event) {
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        } else {
+            event.cancelBubble = true;
+        }
+    }
+
+};
